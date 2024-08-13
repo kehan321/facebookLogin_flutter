@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="facebook_app_id">2194434694282456</string>
+    <string name="fb_login_protocol_scheme">fb1712151785878437</string>
+    <string name="facebook_client_token">61a5e8e365e569cdf94726401904edd0</string>
+    <string name="app_name">"hiresphere"</string>
+
+</resources>    
