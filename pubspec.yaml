@@ -48,6 +48,7 @@ dependencies:
   firebase_auth:
   provider:
   firebase_social_login: ^0.0.4
+  
 
 
 dev_dependencies:
