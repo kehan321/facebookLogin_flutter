@@ -1,4 +1,5 @@
 import 'package:fbsocial/adminscreen.dart';
+import 'package:fbsocial/applesignin.dart';
 import 'package:fbsocial/facebooksign.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -92,6 +93,16 @@ class _SignUpPageState extends State<SignUpPage> {
               },
               child: Text('Sign Up with Supabase'),
               style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                (
+                  AppleSignInButton(),
+                );
+              },
+              child: Text('Sign Up with Apple'),
+              style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 39, 44, 39)),
             ),
           ],
         ),
