@@ -913,18 +913,112 @@
 
 
 
+// import 'package:fbsocial/adminscreen.dart';
+// import 'package:fbsocial/authentication/login.dart';
+// import 'package:fbsocial/authentication/signup.dart';
+// import 'package:fbsocial/facebooksign.dart';
+// import 'package:fbsocial/screens/splashScreen.dart';
+// import 'package:fbsocial/signup.dart';
+// import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart';
+// import 'package:firebase_core/firebase_core.dart';
+// import 'package:supabase_flutter/supabase_flutter.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+
+//   // Initialize Firebase
+//   try {
+//     await Firebase.initializeApp();
+//     print("Firebase initialized successfully.");
+//   } catch (e) {
+//     print("Error initializing Firebase: $e");
+//   }
+
+//   // Initialize Supabase
+//   Supabase.initialize(
+//     url: 'https://xnfmnmqgkaircknxijmr.supabase.co',
+//     anonKey:
+//         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhuZm1ubXFna2FpcmNrbnhpam1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE3NDE0MDUsImV4cCI6MjAzNzMxNzQwNX0.JebiutGiRUGpdbjZKJB78mD2e6DaFNCNh2XXzKMcciA',
+//   );
+
+//   runApp(
+//     ChangeNotifierProvider(
+//       create: (_) => FacebookSignInController(),
+//       child: MyApp(),
+//     ),
+//   );
+// }
+
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Supabase Auth',
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//       ),
+//       home: FutureBuilder(
+//         future: _checkAuthStatus(),
+//         builder: (context, snapshot) {
+//           if (snapshot.connectionState == ConnectionState.waiting) {
+//             return SplashScreen(); // Show splash screen while checking auth status
+//           } else if (snapshot.hasError) {
+//             return Center(child: Text('Error: ${snapshot.error}'));
+//           } else {
+//             final isLoggedIn = snapshot.data as bool;
+//             return isLoggedIn ? HomePage() : LoginPage();
+//           }
+//         },
+//       ),
+//       routes: {
+//         '/splashScreen': (context) => SplashScreen(),
+//         '/login': (context) => LoginPage(),
+//         '/sign-up': (context) => SignUpPage(),
+//         // '/homepage': (context) => HomePage(), // Note: HomePage is now managed by the home parameter
+//       },
+//     );
+//   }
+
+//   Future<bool> _checkAuthStatus() async {
+//     final user = FirebaseAuth.instance.currentUser;
+//     if (user != null) {
+//       // User is signed in with Firebase
+//       return true;
+//     }
+
+//     final session = Supabase.instance.client.auth.session();
+//     if (session != null) {
+//       // User is signed in with Supabase
+//       return true;
+//     }
+
+//     // No user is signed in
+//     return false;
+//   }
+// }
+
+
+
+
+
+
+
+import 'package:fbsocial/adminscreen.dart';
+import 'package:fbsocial/authentication/login.dart';
+import 'package:fbsocial/authentication/signup.dart';
 import 'package:fbsocial/facebooksign.dart';
+import 'package:fbsocial/screens/splashScreen.dart';
 import 'package:fbsocial/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
- // Import your sign-up page
 import 'package:firebase_core/firebase_core.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Firebase
   try {
     await Firebase.initializeApp();
@@ -932,13 +1026,6 @@ void main() async {
   } catch (e) {
     print("Error initializing Firebase: $e");
   }
-
-  // Initialize Supabase
-  Supabase.initialize(
-    url: 'https://xnfmnmqgkaircknxijmr.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhuZm1ubXFna2FpcmNrbnhpam1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE3NDE0MDUsImV4cCI6MjAzNzMxNzQwNX0.JebiutGiRUGpdbjZKJB78mD2e6DaFNCNh2XXzKMcciA',
-  );
 
   runApp(
     ChangeNotifierProvider(
@@ -952,11 +1039,35 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'My App',
+      title: 'Firebase Auth',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: SignUpPage(),
+      debugShowCheckedModeBanner: false,
+      home: FutureBuilder(
+        future: _checkAuthStatus(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return SplashScreen(); // Show splash screen while checking auth status
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            final isLoggedIn = snapshot.data as bool;
+            return isLoggedIn ? HomePage() : LoginPage();
+          }
+        },
+      ),
+      routes: {
+        '/splashScreen': (context) => SplashScreen(),
+        '/login': (context) => LoginPage(),
+        '/sign-up': (context) => SignUpPage(),
+        // '/homepage': (context) => HomePage(), // Note: HomePage is now managed by the home parameter
+      },
     );
+  }
+
+  Future<bool> _checkAuthStatus() async {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    return firebaseUser != null; // Return true if user is signed in with Firebase
   }
 }
