@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class NewpageModel extends ChangeNotifier {
@@ -32,3 +33,26 @@ class NewpageModel extends ChangeNotifier {
     return null;
   }
 }
+
+
+
+
+// class Doctor {
+//   final String imageUrl;
+//   final String name;
+//   final String occupation;
+//   final double ratings;
+
+//   Doctor({required this.imageUrl, required this.name, required this.occupation, required this.ratings});
+
+//   // Create a Doctor object from Firestore snapshot
+//   factory Doctor.fromFirestore(DocumentSnapshot doc) {
+//     Map data = doc.data() as Map<String, dynamic>;
+//     return Doctor(
+//       imageUrl: data['imageUrl'] ?? '',
+//       name: data['name'] ?? '',
+//       occupation: data['occupation'] ?? '',
+//       ratings: (data['ratings'] as num).toDouble(),
+//     );
+//   }
+// }
