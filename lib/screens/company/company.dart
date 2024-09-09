@@ -198,7 +198,7 @@ class DoctorCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DoctorDetailPage(doctor: doctor),
+            builder: (context) => DoctorDetailPage(doctor: doctor)
           ),
         );
       },
@@ -270,6 +270,7 @@ class Doctor {
   final String name;
   final String occupation;
   final double ratings;
+  final double consultationPrice; // Add consultation price
   final List<String> symptoms; // Add symptoms list
 
   Doctor({
@@ -277,11 +278,11 @@ class Doctor {
     required this.name,
     required this.occupation,
     required this.ratings,
+    required this.consultationPrice, // Add consultation price
     required this.symptoms,
   });
 
-  // Utility method to truncate the name
-  String getFormattedName() {
+    String getFormattedName() {
     if (name.length <= 15) {
       print("Unformatted name: $name");
       return name;
@@ -305,6 +306,9 @@ class Doctor {
     }
   }
 
+
+  // Existing methods...
+
   factory Doctor.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return Doctor(
@@ -312,8 +316,8 @@ class Doctor {
       name: data['name'] ?? '',
       occupation: data['occupation'] ?? '',
       ratings: (data['ratings'] as num).toDouble(),
-      symptoms: List<String>.from(
-          data['symptoms'] ?? []), // Ensure symptoms is a list of strings
+      consultationPrice: (data['consultationPrice'] as num).toDouble(), // Fetch consultation price
+      symptoms: List<String>.from(data['symptoms'] ?? []), // Ensure symptoms is a list of strings
     );
   }
 }
@@ -401,3 +405,7 @@ class SimpleDoctorCard extends StatelessWidget {
     );
   }
 }
+
+
+
+
