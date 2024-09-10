@@ -235,7 +235,7 @@ class DoctorCard extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      doctor.getFormattedOccupasion(),
+                      doctor.getFormattedOccupation(),
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[600],
@@ -265,13 +265,17 @@ class DoctorCard extends StatelessWidget {
   }
 }
 
+
+
 class Doctor {
   final String imageUrl;
   final String name;
   final String occupation;
   final double ratings;
+  final String id; // Ensure id is a String
   final double consultationPrice; // Add consultation price
   final List<String> symptoms; // Add symptoms list
+  final String about; // Add about field
 
   Doctor({
     required this.imageUrl,
@@ -280,9 +284,11 @@ class Doctor {
     required this.ratings,
     required this.consultationPrice, // Add consultation price
     required this.symptoms,
+    required this.about,
+    required this.id, // Ensure id is a String
   });
 
-    String getFormattedName() {
+  String getFormattedName() {
     if (name.length <= 15) {
       print("Unformatted name: $name");
       return name;
@@ -294,21 +300,19 @@ class Doctor {
     }
   }
 
-  String getFormattedOccupasion() {
+  String getFormattedOccupation() {
     if (occupation.length <= 14) {
-      print("Unformatted name: $occupation");
+      print("Unformatted occupation: $occupation");
       return occupation;
     } else {
-      String formattedoccupation =
-          '${occupation.substring(0, 12)}...'; // Truncate to 15 characters
-      print("Formatted name: $formattedoccupation");
-      return formattedoccupation;
+      String formattedOccupation =
+          '${occupation.substring(0, 14)}...'; // Truncate to 14 characters
+      print("Formatted occupation: $formattedOccupation");
+      return formattedOccupation;
     }
   }
 
-
-  // Existing methods...
-
+  // Factory method to create Doctor from Firestore document
   factory Doctor.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return Doctor(
@@ -316,12 +320,13 @@ class Doctor {
       name: data['name'] ?? '',
       occupation: data['occupation'] ?? '',
       ratings: (data['ratings'] as num).toDouble(),
-      consultationPrice: (data['consultationPrice'] as num).toDouble(), // Fetch consultation price
-      symptoms: List<String>.from(data['symptoms'] ?? []), // Ensure symptoms is a list of strings
+      id: data['id'] ?? '', // Ensure id is a String
+      consultationPrice: (data['consultationPrice'] as num).toDouble(),
+      symptoms: List<String>.from(data['symptoms'] ?? []),
+      about: data['about'] ?? '',
     );
   }
 }
-
 
 class SimpleDoctorCard extends StatelessWidget {
   final String title;
