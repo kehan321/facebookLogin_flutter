@@ -66,12 +66,14 @@ class Review {
   final String reviewText;
   final String formattedDate;
   final double rating;
+  final String profilePicUrl;  // Add profilePicUrl field
 
   Review({
     required this.userName,
     required this.reviewText,
     required this.formattedDate,
     required this.rating,
+    required this.profilePicUrl,  // Initialize profilePicUrl
   });
 
   factory Review.fromFirestore(DocumentSnapshot doc) {
@@ -81,6 +83,7 @@ class Review {
       reviewText: data['reviewText'] ?? '',
       formattedDate: data['formattedDate'] ?? '',
       rating: (data['rating'] ?? 0).toDouble(),
+      profilePicUrl: data['userProfilePic'] ?? '', // Fetch profilePicUrl
     );
   }
 }
@@ -88,22 +91,28 @@ class Review {
 class ReviewCard extends StatelessWidget {
   final Review review;
 
-  ReviewCard({required this.review});
+    ReviewCard({required this.review});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4, // Add elevation for shadow effect
-      // margin: EdgeInsets.all(8), // Margin around the card
+      elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12), // Rounded corners
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0), // Padding inside the card
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
+leading: CircleAvatar(
+  backgroundImage: review.profilePicUrl.isNotEmpty
+      ? NetworkImage(review.profilePicUrl) // Use NetworkImage if URL is valid
+      : AssetImage('assets/placeholder.png'), // Use a local placeholder image if the URL is empty
+  child: review.profilePicUrl.isEmpty ? Text("data") : null, // Optional: add a label if no image
+),
+
               title: Text(
                 review.userName,
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -117,7 +126,7 @@ class ReviewCard extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 8), // Space between ListTile and review text
+            SizedBox(height: 8),
             Text(
               review.reviewText,
               style: TextStyle(color: Colors.black87),

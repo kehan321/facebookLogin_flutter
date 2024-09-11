@@ -276,6 +276,7 @@ class Doctor {
   final double consultationPrice; // Add consultation price
   final List<String> symptoms; // Add symptoms list
   final String about; // Add about field
+  final String location; // Add about field
 
   Doctor({
     required this.imageUrl,
@@ -286,6 +287,7 @@ class Doctor {
     required this.symptoms,
     required this.about,
     required this.id, // Ensure id is a String
+    required this.location, // Ensure id is a String
   });
 
   String getFormattedName() {
@@ -324,6 +326,7 @@ class Doctor {
       consultationPrice: (data['consultationPrice'] as num).toDouble(),
       symptoms: List<String>.from(data['symptoms'] ?? []),
       about: data['about'] ?? '',
+      location: data['location'] ?? '',
     );
   }
 }

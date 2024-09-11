@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fbsocial/adminscreen.dart';
+import 'package:fbsocial/screens/doctor/doctorchat.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -14,42 +16,63 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   String _errorMessage = '';
 
-  Future<void> _login() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      setState(() {
-        _isLoading = true;
-        _errorMessage = '';
-      });
+Future<void> _login() async {
+  if (_formKey.currentState?.validate() ?? false) {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
 
-      try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-        // Navigate to another page after successful login
-       Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomePage(
-              // userData: {
-              //   'email': email,
-              //   'name': displayName,
-              //   'picture': photoUrl,
-              // },
+    try {
+      // Perform the Firebase authentication
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      // Check if the user exists in Firestore 'users' collection
+      final userId = userCredential.user?.uid;
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+
+      if (userDoc.exists) {
+        // User exists in Firestore
+        if (_emailController.text.trim() == 'ifra@gmail.com' && _passwordController.text.trim() == 'ifra123') {
+          // Navigate to DoctorChatPage for specific credentials
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DoctorChatPage(
+                doctorId: "10",
+                doctorName: 'Patient Name', // Replace with appropriate patient name
+              ),
             ),
-          ),
-        );
-      } on FirebaseAuthException catch (e) {
+          );
+        } else {
+          // Navigate to Admin/HomePage for other users
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePage(), // Replace with the correct homepage widget
+            ),
+          );
+        }
+      } else {
+        // User does not exist in Firestore
         setState(() {
-          _errorMessage = e.message ?? 'An error occurred';
-        });
-      } finally {
-        setState(() {
-          _isLoading = false;
+          _errorMessage = 'User does not exist. Please sign up.';
         });
       }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = e.message ?? 'An error occurred';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {

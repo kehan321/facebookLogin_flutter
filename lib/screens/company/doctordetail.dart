@@ -197,8 +197,6 @@
 //                 ),
 //               ),
 
-
-              
 //               Positioned(
 //                 bottom: 6,
 //                 left: 30,
@@ -251,13 +249,14 @@
 
 // // Define the Doctor class and ReviewForm class if needed
 
+import 'package:fbsocial/screens/company/chat.dart';
 import 'package:fbsocial/screens/company/company.dart';
 import 'package:fbsocial/screens/company/reviewcard.dart';
+import 'package:fbsocial/screens/doctor/doctorchat.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fbsocial/screens/company/reviewpage.dart'; // Import your review widget
-
 
 class DoctorDetailPage extends StatefulWidget {
   final Doctor doctor;
@@ -275,6 +274,44 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
   void initState() {
     super.initState();
     _fetchReviewCount();
+    getAverageRating();
+  }
+
+  Future<double> getAverageRating() async {
+    try {
+      // Reference to the 'reviews' collection in Firestore
+      CollectionReference reviews =
+          FirebaseFirestore.instance.collection('reviews');
+
+      // Fetch all documents (reviews) in the collection
+      QuerySnapshot querySnapshot = await reviews.get();
+
+      // If there are no reviews, return 0 as the average rating
+      if (querySnapshot.docs.isEmpty) {
+        return 0.0;
+      }
+
+      double totalRating = 0.0; // To store the sum of ratings
+      int totalReviews = querySnapshot.docs.length; // Total number of reviews
+
+      // Iterate through each review to extract the rating
+      for (var doc in querySnapshot.docs) {
+        var data = doc.data() as Map<String, dynamic>;
+
+        // Assuming that the rating field is stored as 'rating' in Firestore
+        if (data.containsKey('rating')) {
+          totalRating += data['rating']; // Add the rating to the total sum
+        }
+      }
+
+      // Calculate the average rating
+      double averageRating = totalRating / totalReviews;
+
+      return averageRating;
+    } catch (e) {
+      print("Error fetching ratings: $e");
+      return 0.0;
+    }
   }
 
   Future<void> _fetchReviewCount() async {
@@ -394,15 +431,24 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                             color: Colors.white,
                           ),
                           child: IconButton(
-                            icon: Icon(
-                              Icons.call,
-                              size: 30,
-                              color: Colors.black,
-                            ),
-                            onPressed: () {
-                              // Add call action
-                            },
-                          ),
+  icon: Icon(
+    Icons.call,
+    size: 30,
+    color: Colors.black,
+  ),
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DoctorChatPage(
+          doctorId: "10",
+          doctorName: "kehan",
+        ),
+      ),
+    );
+  },
+)
+
                         ),
                         SizedBox(width: 20),
                         Container(
@@ -419,6 +465,14 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                               color: Colors.black,
                             ),
                             onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PatientChatPage(
+                                      doctorId: widget.doctor.id,
+                                      doctorName: widget.doctor.name),
+                                ),
+                              );
                               // Add chat action
                             },
                           ),
@@ -439,7 +493,11 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                       topRight: Radius.circular(22),
                     ),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                  padding: EdgeInsets.only(
+                    top: 20,
+                    left: 20,
+                    right: 20,
+                  ),
                   child: SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -459,28 +517,87 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                           ),
                         ),
                         SizedBox(height: 20),
-                        Text(
-                          "Patient Reviews ($reviewCount)",
-                          style: GoogleFonts.roboto(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              "Patient Reviews ($reviewCount)",
+                              style: GoogleFonts.roboto(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(
+                                width:
+                                    10), // Add some space between the text and rating
+                            FutureBuilder<double>(
+                              future:
+                                  getAverageRating(), // Fetch the average rating
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  // While the data is loading, show a loading indicator or placeholder
+                                  return CircularProgressIndicator();
+                                } else if (snapshot.hasError) {
+                                  // In case of an error, show an error message
+                                  return Text("Error");
+                                } else if (snapshot.hasData) {
+                                  // Once the data is fetched, display the average rating
+                                  return Text(
+                                    " ${snapshot.data!.toStringAsFixed(1)}", // Display with one decimal place
+                                    style: GoogleFonts.roboto(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors
+                                          .orange, // You can customize the style
+                                    ),
+                                  );
+                                } else {
+                                  return Text("No reviews");
+                                }
+                              },
+                            ),
+                          ],
                         ),
                         SizedBox(height: 10),
                         Container(
                           height: 150, // Set a fixed height for reviews
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            itemCount: reviewCount, // Dynamic item count based on reviews length
+                            itemCount:
+                                reviewCount, // Dynamic item count based on reviews length
                             itemBuilder: (context, index) {
                               return Container(
-                                width: MediaQuery.of(context).size.width, // Width of each review card
-                                margin: EdgeInsets.symmetric(horizontal: 4), // Reduced margin for less space between cards
-                                child: ReviewWidget(doctorId: widget.doctor.id), // Displaying reviews inline
+                                width: MediaQuery.of(context)
+                                    .size
+                                    .width, // Width of each review card
+                                // margin: EdgeInsets.symmetric(horizontal: 4), // Reduced margin for less space between cards
+                                child: ReviewWidget(
+                                    doctorId: widget.doctor
+                                        .id), // Displaying reviews inline
                               );
                             },
                           ),
                         ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        //                 Row(
+                        //   children: [
+                        //     Container(
+                        //       width: 50,
+                        //       height: 50,
+                        //       decoration: BoxDecoration(
+                        //         color: Colors.blue,
+                        //         borderRadius: BorderRadius.circular(50),
+                        //       ),
+                        //       child: Icon(Icons.location_off_outlined, color: Colors.white),
+                        //     ),
+                        //     SizedBox(width: 10),
+                        //     Text(widget.doctor.location),
+                        //   ],
+                        // ),
+
+                        SizedBox(height: 100),
                       ],
                     ),
                   ),
